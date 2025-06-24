@@ -1,7 +1,7 @@
 import { mindsetFunction, mindsetModule } from '@wabot-dev/framework'
 
 import { getAllAdvisors, getByName, getAvailability } from '@/data-mocked/Advisors';
-import type { FindAdvisor } from './request/RequestCalendar';
+import { FindAdvisor } from './request/RequestCalendar';
 
 
 @mindsetModule({
@@ -10,7 +10,7 @@ import type { FindAdvisor } from './request/RequestCalendar';
 })
 export class CalendarTowatchRealStateModule {
   @mindsetFunction({
-    description: 'list all advisors when for availability',
+    description: 'List all real estate advisors with their availability status and schedules for property viewings',
   })
   async listAdvisors() {
     const data = getAllAdvisors()
@@ -19,19 +19,13 @@ export class CalendarTowatchRealStateModule {
   }
 
   @mindsetFunction({
-    description: 'look for advisor by name',
+    description: 'Search for the real estate advisor schedule and available times by name',
   })
   getAdvisor(request: FindAdvisor) {
     console.log(request);
     
     const advisor = getByName(request.name)
-    if (!advisor) {
-      return {
-        status: 'error',
-        message: 'No se encontró al asesor'
-      }
-    }
-
+ 
     return advisor
   }
 
