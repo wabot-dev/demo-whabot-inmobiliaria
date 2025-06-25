@@ -209,3 +209,95 @@ function calculateAvailability(
 
   return slots
 }
+
+export function generateAppointmentId(): string {
+  return 'app-' +  crypto.randomUUID()
+}
+
+
+// Función para verificar disponibilidad
+export function isSlotAvailable(
+  advisor: Advisor,
+  date: string,
+  start: string,
+  duration: number
+): boolean {
+  const dayName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][
+    new Date(date).getDay()
+  ];
+
+  // 1. Verificar si el asesor trabaja ese día
+  const daySchedule = advisor.schedule.find(s => s.day === dayName);
+  if (!daySchedule) return false;
+
+  // Calcular hora de fin
+  const [startHour, startMinute] = start.split(':').map(Number);
+  const endMinutes = startMinute + duration;
+  const endHour = startHour + Math.floor(endMinutes / 60);
+  const endMinute = endMinutes % 60;
+  const end = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
+
+  // 2. Verificar si está dentro del horario laboral
+  if (start < daySchedule.start || end > daySchedule.end) {
+    return false;
+  }
+ // 3. Verificar conflicto con otras citas
+  return !advisor.appointments.some(app => {
+    if (app.date !== date) return false;
+    
+    const appStart = app.start.split(':').map(Number);
+    const appEnd = app.end.split(':').map(Number);
+    const slotStart = [startHour, startMinute];
+    const slotEnd = [endHour, endMinute];
+    
+    // Conversión a minutos totales para comparación
+    const toMinutes = (time: number[]) => time[0] * 60 + time[1];
+    
+    return (
+      toMinutes(slotStart) < toMinutes(appEnd) &&
+      toMinutes(slotEnd) > toMinutes(appStart)
+    );
+  });
+}
+
+export function convertRelativeDate(dateInput: string): string | null {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+    return dateInput; // Ya es formato correcto
+  }
+
+  const today = new Date();
+  const normalizedInput = dateInput.toLowerCase();
+
+  if (normalizedInput === 'hoy') {
+    return today.toISOString().split('T')[0];
+  }
+
+  if (normalizedInput === 'mañana') {
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  }
+
+  if (normalizedInput === 'pasado mañana') {
+    const dayAfterTomorrow = new Date(today);
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+    return dayAfterTomorrow.toISOString().split('T')[0];
+  }
+
+  // Manejar días de la semana
+  const daysOfWeek = [
+    'domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'
+  ];
+  const dayIndex = daysOfWeek.findIndex(d => normalizedInput.includes(d));
+  
+  if (dayIndex !== -1) {
+    const targetDay = new Date(today);
+    const currentDay = targetDay.getDay();
+    let daysToAdd = (dayIndex - currentDay + 7) % 7;
+    daysToAdd = daysToAdd === 0 ? 7 : daysToAdd; // Si es hoy, agendar para la próxima semana
+    targetDay.setDate(targetDay.getDate() + daysToAdd);
+    return targetDay.toISOString().split('T')[0];
+  }
+
+  return null;
+}
