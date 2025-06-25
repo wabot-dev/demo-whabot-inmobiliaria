@@ -50,7 +50,7 @@ export class CalendarTowatchRealStateModule {
   makeAppoiment(request: MakeAppoiment) {
     const advisor = getByName(request.name)
     if (!advisor) {
-      return {,
+      return {
         message: 'No se encontró al asesor, pregunta el nombre del asesor'
       }
     }
@@ -62,5 +62,5 @@ export class CalendarTowatchRealStateModule {
       end: request.end,
       status: 'pendiente',
     }
-
+  }
 }
