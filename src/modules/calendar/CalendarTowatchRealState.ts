@@ -13,7 +13,9 @@ export class CalendarTowatchRealStateModule {
     description: 'show all advisors',
   })
   async listAdvisors() {
-    return advisors
+    return advisors.map(a => a.nameAdvisor
+      
+    )
   }
 
   @mindsetFunction({
@@ -27,16 +29,11 @@ export class CalendarTowatchRealStateModule {
   }
 
    @mindsetFunction({
-    description: 'verify availability of advisor by name',
+    description: 'verificar la disponibilidad de un asesor',
   })
   checkAppoimentByAdvisor(request: FindAdvisor) {
     const advisor = getAvailability(request.name, request.date)
-    if (!advisor) {
-      return {
-        status: 'error',
-        message: 'No se encontró al asesor'
-      }
-    }
+
     return advisor
   }
 

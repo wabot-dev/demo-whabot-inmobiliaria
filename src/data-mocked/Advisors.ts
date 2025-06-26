@@ -1,7 +1,7 @@
 // Interfaz TypeScript para los asesores
 export interface Advisor {
   id: string
-  name: string
+  nameAdvisor: string
   email: string
   phone: string
   specialty: string[]
@@ -28,7 +28,7 @@ export interface Appointment {
 export const advisors: Advisor[] = [
   {
     id: 'adv-001',
-    name: 'María Rodríguez',
+    nameAdvisor: 'María Rodríguez',
     email: 'mrodriguez@inmobiliaria.com',
     phone: '+574604123456',
     specialty: ['El Poblado', 'apartamentos de lujo'],
@@ -60,7 +60,7 @@ export const advisors: Advisor[] = [
   },
   {
     id: 'adv-002',
-    name: 'Carlos Vélez',
+    nameAdvisor: 'Carlos Vélez',
     email: 'cvelez@casasymas.com',
     phone: '+574604654321',
     specialty: ['Laureles', 'casas familiares'],
@@ -92,7 +92,7 @@ export const advisors: Advisor[] = [
   },
   {
     id: 'adv-003',
-    name: 'Laura Gutiérrez',
+    nameAdvisor: 'Laura Gutiérrez',
     email: 'lgutierrez@comerciales.com',
     phone: '+574604112233',
     specialty: ['locales comerciales', 'oficinas'],
@@ -137,7 +137,7 @@ export const getAllAdvisors = () => {
 
 export const getByName = (name: string) => {
   const advisor = advisors.find((advisor) =>
-    advisor.name.toLowerCase().includes(name.toLowerCase()),
+    advisor.nameAdvisor.toLowerCase().includes(name.toLowerCase()),
   )
 
   if (!advisor) {
