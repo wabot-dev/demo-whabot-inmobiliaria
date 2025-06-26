@@ -1,9 +1,7 @@
 import { mindsetFunction, mindsetModule } from '@wabot-dev/framework'
 
-import { getAllAdvisors, getByName, getAvailability, generateAppointmentId } from '@/data-mocked/Advisors';
+import { getAllAdvisors, getByName, getAvailability, generateAppointmentId, convertRelativeDate, isSlotAvailable, type Advisor, advisors, type Appointment } from '@/data-mocked/Advisors';
 import { FindAdvisor, MakeAppoiment } from './request/RequestCalendar';
-
-const appointments = []
 
 
 @mindsetModule({
@@ -12,16 +10,14 @@ const appointments = []
 })
 export class CalendarTowatchRealStateModule {
   @mindsetFunction({
-    description: 'List all real estate advisors with their availability status and schedules for property viewings',
+    description: 'show all advisors',
   })
   async listAdvisors() {
-    const data = getAllAdvisors()
-
-    return data
+    return advisors
   }
 
   @mindsetFunction({
-    description: 'Search for the real estate advisor schedule and available times by name',
+    description: 'Search for the advisor schedule and available times by name',
   })
   getAdvisor(request: FindAdvisor) {
 
@@ -31,7 +27,7 @@ export class CalendarTowatchRealStateModule {
   }
 
    @mindsetFunction({
-    description: 'check availability of advisor by name',
+    description: 'verify availability of advisor by name',
   })
   checkAppoimentByAdvisor(request: FindAdvisor) {
     const advisor = getAvailability(request.name, request.date)
@@ -48,19 +44,51 @@ export class CalendarTowatchRealStateModule {
     description: 'make a appoiment with advisor by name',
   })
   makeAppoiment(request: MakeAppoiment) {
-    const advisor = getByName(request.name)
-    if (!advisor) {
+
+    const date = convertRelativeDate(request.date)
+    if (!date) {
       return {
-        message: 'No se encontró al asesor, pregunta el nombre del asesor'
+        message: 'Fecha inválida'
       }
     }
-    const appoiment = {
+    const advisor = getByName(request.name) as Advisor
+
+     const advisorIndex = advisors.findIndex(a => a.id === advisor.id);
+
+    
+
+    const isSlot = isSlotAvailable(advisors[advisorIndex], date, request.start, 60);
+    if (!isSlot) {
+      return {
+        message: 'El asesor no está disponible en ese horario'
+      }
+    }
+
+     const [startHour, startMinute] = request.start.split(':').map(Number);
+  const endMinutes = startMinute + 60;
+  const endHour = startHour + Math.floor(endMinutes / 60);
+  const end = `${endHour.toString().padStart(2, '0')}:${endMinutes % 60}`.padEnd(5, '0')
+    
+
+    const newAppointment: Appointment = {
+
       id: generateAppointmentId(),
       client: request.client,
       date: request.date,
       start: request.start,
-      end: request.end,
+      end,
       status: 'pendiente',
     }
+     advisors[advisorIndex].appointments.push(newAppointment);
+
+
+
+
+    return {
+      message: 'Cita agendada con éxito',
+      newAppointment
+    }
   }
+
+
 }

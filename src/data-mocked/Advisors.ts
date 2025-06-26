@@ -1,5 +1,5 @@
 // Interfaz TypeScript para los asesores
-interface Advisor {
+export interface Advisor {
   id: string
   name: string
   email: string
@@ -9,13 +9,13 @@ interface Advisor {
   appointments: Appointment[]
 }
 
-interface ScheduleSlot {
+export interface ScheduleSlot {
   day: 'Lunes' | 'Martes' | 'Miércoles' | 'Jueves' | 'Viernes' | 'Sábado'
   start: string // HH:MM formato 24h
   end: string // HH:MM formato 24h
 }
 
-interface Appointment {
+export interface Appointment {
   id: string
   client: string
   date: string // ISO 8601
