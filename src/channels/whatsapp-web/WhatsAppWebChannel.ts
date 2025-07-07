@@ -1,11 +1,23 @@
-
-import { injectable, type ChatResolver, type IChatChannel, type IChatConnection, type IChatMessage, type IReceivedMessage, type IUserConnection, type UserResolver } from '@wabot-dev/framework'
+import {
+  injectable,
+  ChatResolver,
+  type IChatChannel,
+  type IChatConnection,
+  type IChatMessage,
+  type IReceivedMessage,
+  type IUserConnection,
+  UserResolver,
+} from '@wabot-dev/framework'
 import qrcode from 'qrcode-terminal'
-import { Client } from 'whatsapp-web.js'
+import wwjs from "whatsapp-web.js"
+
 
 @injectable()
 export class WhatsAppWebChannel implements IChatChannel {
-  private client = new Client({})
+ private client = new wwjs.Client({
+    authStrategy: new wwjs.LocalAuth(),
+    // proxyAuthentication: { username: 'username', password: 'password' },
+});
   private callback: ((message: IReceivedMessage) => void) | null = null
 
   constructor(
@@ -27,7 +39,7 @@ export class WhatsAppWebChannel implements IChatChannel {
     })
 
     this.client.on('message_create', async (message) => {
-      debugger
+      //debugger
       console.log(message.body)
       if (!this.callback) {
         return
