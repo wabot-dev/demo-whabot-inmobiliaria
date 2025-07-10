@@ -10,17 +10,21 @@ import {
 } from '@wabot-dev/framework'
 import qrcode from 'qrcode-terminal'
 import wwjs from "whatsapp-web.js"
+import { WhatsAppWebChannelConfig } from './IWhatsAppWebChannelConfig';
 
 
 @injectable()
 export class WhatsAppWebChannel implements IChatChannel {
  private client = new wwjs.Client({
-    authStrategy: new wwjs.LocalAuth(),
+   authStrategy: new wwjs.LocalAuth({
+      dataPath: "./wabot"
+    }),
     // proxyAuthentication: { username: 'username', password: 'password' },
 });
   private callback: ((message: IReceivedMessage) => void) | null = null
 
   constructor(
+    private config: WhatsAppWebChannelConfig,
     private chatResolver: ChatResolver,
     private userResolver: UserResolver,
   ) {}
@@ -39,8 +43,11 @@ export class WhatsAppWebChannel implements IChatChannel {
     })
 
     this.client.on('message_create', async (message) => {
-      //debugger
+      debugger
       console.log(message.body)
+      if (message.id.fromMe) {
+        return
+      }
       if (!this.callback) {
         return
       }

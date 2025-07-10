@@ -6,10 +6,12 @@ import { chatBot, ChatBot, chatController, cmd, whatsapp, type IReceivedMessage 
 export class MyController {
   constructor(@chatBot(MyMindset) private myBot: ChatBot) {}
 
-  @whatsAppWeb()
+  @whatsAppWeb({
+    number: '3178511192'
+  })
   onMessage(context: IReceivedMessage) {
     this.myBot.sendMessage(context.message, (replyMessage) => {
-      context.reply(replyMessage)
+        context.reply(replyMessage)
     })
   }
 }
